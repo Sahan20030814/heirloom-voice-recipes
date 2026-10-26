@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Heirloom — turn a voice memo into a family cookbook</title>
+  <meta name="description" content="Record a loved one telling a recipe. Heirloom turns it into a beautiful cookbook page — 100% on your own computer, with open-source AI.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><span class="logo">H</span><span>Heirloom</span></a>
+    <nav class="nav-links">
+      <a href="#studio">Studio</a>
+      <a href="#cookbook">Cookbook</a>
+      <a href="#why">Why open source</a>
+    </nav>
+    <div class="nav-right">
+      <span class="pill" id="pillWhisper"><i></i>Whisper</span>
+      <span class="pill" id="pillOllama"><i></i>Gemma</span>
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">◐</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <p class="eyebrow">Built for one real person · Seeya's kitchen</p>
+      <h1>Every recipe a loved one has <em>never written down</em>,<br>kept forever.</h1>
+      <p class="lead">Hit record while they cook and talk. Heirloom listens, understands, and writes it up as a proper recipe page, with their story, their voice and the questions you still need to ask them.</p>
+      <div class="hero-cta">
+        <a class="btn primary" href="#studio">Record a recipe</a>
+        <a class="btn ghost" href="#cookbook">Open the cookbook</a>
+      </div>
+      <ul class="hero-badges">
+        <li>🔒 Runs offline</li><li>🧠 Open-weight Gemma</li><li>🎙️ Local Whisper</li><li>💸 Costs nothing</li>
+      </ul>
+    </section>
+
+    <section class="studio" id="studio">
+      <div class="card capture">
+        <div class="card-head"><span class="step-no">1</span><div><h2>Capture the memory</h2><p>Record, upload or paste what they said.</p></div></div>
+
+        <div class="field-row">
+          <label class="field"><span>Who's telling it?</span><input id="storyteller" value="Seeya" maxlength="40"></label>
+          <label class="field"><span>Write the recipe in</span>
+            <select id="outLang">
+              <option>English</option><option>Sinhala (සිංහල)</option><option>Tamil (தமிழ்)</option><option>Same language as the memo</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-mode="record" role="tab">🎙️ Record</button>
+          <button class="tab" data-mode="upload" role="tab">📁 Upload</button>
+          <button class="tab" data-mode="paste" role="tab">✍️ Paste text</button>
+        </div>
+
+        <div class="pane" id="pane-record">
+          <div class="recorder">
+            <canvas id="wave" width="640" height="120"></canvas>
+            <div class="rec-row">
+              <button class="rec-btn" id="recBtn" aria-label="Start recording"><span></span></button>
+              <div class="rec-info"><b id="recTime">0:00</b><small id="recHint">Tap to start. Ask them to say each ingredient out loud.</small></div>
+            </div>
+            <audio id="recPlayback" controls hidden></audio>
+          </div>
+        </div>
+
+        <div class="pane" id="pane-upload" hidden>
+          <label class="drop" id="drop">
+            <input type="file" id="fileInput" accept="audio/*,.m4a,.mp3,.wav,.ogg,.opus,.webm" hidden>
+            <span class="drop-icon">⬆</span>
+            <b id="dropTitle">Drop a voice memo here</b>
+            <small>WhatsApp voice notes (.opus), .m4a, .mp3, .wav</small>
+          </label>
+        </div>
+
+        <div class="pane" id="pane-paste" hidden>
+          <textarea id="pasteBox" rows="8" placeholder="Paste a transcript or type what they told you…"></textarea>
+          <button class="link-btn" id="sampleBtn">Try a sample memo →</button>
+        </div>
+
+        <button class="btn primary wide" id="makeBtn" disabled>✨ Turn it into a recipe</button>
+        <p class="err" id="err" role="alert" hidden></p>
+      </div>
+
+      <div class="card result" id="resultCard">
+        <div class="card-head"><span class="step-no">2</span><div><h2>Their recipe, written up</h2><p>Check it, tweak the title, save it to the cookbook.</p></div></div>
+
+        <ol class="pipeline" id="pipeline">
+          <li data-s="1"><i></i><span>Listening</span><small>local Whisper</small></li>
+          <li data-s="2"><i></i><span>Understanding</span><small>local Gemma</small></li>
+          <li data-s="3"><i></i><span>Plating</span><small>your cookbook</small></li>
+        </ol>
+
+        <div id="preview" class="empty">
+          <div class="empty-art">🍲</div>
+          <p>Your recipe will appear here.</p>
+        </div>
+        <div class="result-actions" id="resultActions" hidden>
+          <button class="btn primary" id="saveBtn">Save to cookbook</button>
+          <button class="btn ghost" id="discardBtn">Discard</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="cookbook" id="cookbook">
+      <div class="section-head">
+        <div><p class="eyebrow">The family cookbook</p><h2>Recipes worth keeping</h2></div>
+        <button class="btn ghost" id="printBtn">🖨️ Print / save as PDF book</button>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="empty big" id="gridEmpty">
+        <div class="empty-art">📖</div>
+        <p>No recipes yet. Record the first one above.</p>
+      </div>
+    </section>
+
+    <section class="why" id="why">
+      <p class="eyebrow">Why open innovation matters here</p>
+      <h2>Family voices shouldn't live on someone else's server.</h2>
+      <div class="why-grid">
+        <article><h3>🔒 Private by design</h3><p>Grandpa's voice, his stories and his health details never leave this laptop. No account, no upload, no terms of service.</p></article>
+        <article><h3>🔁 Swappable brains</h3><p>One environment variable swaps the model: Gemma, Llama, Qwen. Better Sinhala support tomorrow? Change one line.</p></article>
+        <article><h3>💸 Free forever</h3><p>No API bill for a hobby that should outlive any pricing page. Offline works in the kitchen, even with no signal.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">Made with love, <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> + <a href="https://deepmind.google/models/gemma/" target="_blank" rel="noopener">Gemma</a> + <a href="https://github.com/SYSTRAN/faster-whisper" target="_blank" rel="noopener">faster-whisper</a>.</footer>
+
+  <dialog id="dlg"><div class="dlg-body" id="dlgBody"></div></dialog>
+  <div id="printBook" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
